@@ -1,0 +1,5 @@
+Task: Project Scaffolding & Testing Configuration
+- Initialized Next.js App Router project with TypeScript and Tailwind CSS v4.
+- Added Lucide icons and UI cn utility helper in src/lib/utils.ts.
+- Configured Vitest testing environment with jsdom and @testing-library/jest-dom matchers.
+- Added basic passing smoke tests in src/test/utils.test.ts.
