@@ -1,0 +1,13 @@
+Task: Project Scaffolding & Testing Configuration (in-flight refinement)
+
+Summary:
+- Installed @vitest/coverage-v8@5.0.1. vitest.config.ts already chose provider 'v8', but the package was missing, so 'vitest --coverage' failed.
+- Added an 'npm run test:coverage' script.
+
+Files modified:
+- package.json
+- package-lock.json
+
+Why: The workflow quality gate requires >80% coverage, and that can't be checked without a working coverage provider.
+
+Verification: CI=true npm run test:coverage -> 2/2 tests pass, 100% coverage; npm run lint and tsc --noEmit -> clean.
