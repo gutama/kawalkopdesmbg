@@ -1,10 +1,11 @@
 # Implementation Plan: Initial MVP for KawalKopdesMBG
 
 ## Phase 1: Project Scaffolding & Database Layer
-- [ ] Task: Project Scaffolding & Testing Configuration
-  - [ ] Initialize Next.js App Router application with TypeScript and Tailwind CSS
-  - [ ] Configure Lucide Icons and base UI utility helpers
-  - [ ] Configure Vitest testing environment and test helpers
+- [x] Task: Project Scaffolding & Testing Configuration f72912f
+  - [x] Initialize Next.js App Router application with TypeScript and Tailwind CSS
+  - [x] Configure Lucide Icons and base UI utility helpers
+  - [x] Configure Vitest testing environment and test helpers
+  - *Note: Refinement e4a456e added the missing `@vitest/coverage-v8` provider and an `npm run test:coverage` script.*
 - [ ] Task: Drizzle ORM Schema & Database Persistence (TDD)
   - [ ] Write unit tests for schema models, relationships, and validation constraints
   - [ ] Define Drizzle schema for cooperatives, kitchens, farmers, commodities, deliveries, delivery items, and proof of delivery
