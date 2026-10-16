@@ -1,0 +1,26 @@
+Task: Drizzle ORM Schema & Database Persistence (TDD)
+
+Summary of Changes:
+- Defined Drizzle ORM SQLite schema for cooperatives, kitchens, farmers, commodities, deliveries, delivery_items, and proof_of_delivery with CHECK constraints, foreign key rules, and relations.
+- Configured better-sqlite3 database client with WAL journaling, foreign_keys enforcement, and busy_timeout, plus Drizzle Kit migrations and an immutability trigger on proof_of_delivery.
+- Implemented idempotent database seed module (src/db/seed.ts) pre-populating Subang and Banyumas cooperatives, SPPG kitchens, farmers, staple commodities in IDR, and sample deliveries across DRAFT, DISPATCHED, and VERIFIED states.
+- Added comprehensive unit tests for schema constraints, database client lifecycle, and seeding (>89% coverage).
+
+Files Created/Modified:
+- drizzle.config.ts
+- drizzle/0000_initial_schema.sql
+- drizzle/0001_proof_of_delivery_immutable.sql
+- drizzle/meta/_journal.json
+- drizzle/meta/0000_snapshot.json
+- drizzle/meta/0001_snapshot.json
+- src/db/schema.ts
+- src/db/client.ts
+- src/db/migrate.ts
+- src/db/seed.ts
+- src/test/helpers/db.ts
+- src/test/schema.test.ts
+- src/test/db-client.test.ts
+- src/test/seed.test.ts
+- package.json
+- eslint.config.mjs
+- .gitignore
