@@ -6,12 +6,12 @@
   - [x] Configure Lucide Icons and base UI utility helpers
   - [x] Configure Vitest testing environment and test helpers
   - *Note: Refinement e4a456e added the missing `@vitest/coverage-v8` provider and an `npm run test:coverage` script.*
-- [ ] Task: Drizzle ORM Schema & Database Persistence (TDD)
-  - [ ] Write unit tests for schema models, relationships, and validation constraints
-  - [ ] Define Drizzle schema for cooperatives, kitchens, farmers, commodities, deliveries, delivery items, and proof of delivery
-  - [ ] Configure SQLite database client, connection pool, and Drizzle Kit migrations
-  - [ ] Implement database seed script with realistic Indonesian village cooperative and SPPG kitchen data
-- [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
+- [x] Task: Drizzle ORM Schema & Database Persistence (TDD) b796b69
+  - [x] Write unit tests for schema models, relationships, and validation constraints
+  - [x] Define Drizzle schema for cooperatives, kitchens, farmers, commodities, deliveries, delivery items, and proof of delivery
+  - [x] Configure SQLite database client, connection pool, and Drizzle Kit migrations
+  - [x] Implement database seed script with realistic Indonesian village cooperative and SPPG kitchen data
+- [~] Task: Phase Verification & Checkpoint (Refer to workflow.md)
 
 ## Phase 2: Role Management & Layout Navigation
 - [ ] Task: Role-Based Persona Switcher & Session Layer (TDD)
