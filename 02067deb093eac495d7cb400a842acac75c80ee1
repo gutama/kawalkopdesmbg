@@ -1,0 +1,16 @@
+Task: Role-Based Persona Switcher & Session Layer (TDD)
+
+Summary of Changes:
+- Implemented role validation, permission checks, role-customized navigation items, and storage helpers in src/lib/session.ts.
+- Built SessionProvider and useSession React context with localStorage persistence in src/components/session-provider.tsx.
+- Built responsive AppHeader with interactive demo persona switcher (Koperasi Admin, SPPG Staff, Public Observer) and mobile navigation drawer in src/components/app-header.tsx.
+- Integrated SessionProvider and AppHeader into src/app/layout.tsx and updated src/app/page.tsx with role-aware workspace cards.
+- Added comprehensive unit and component tests in src/test/session.test.tsx.
+
+Files Created/Modified:
+- src/lib/session.ts
+- src/components/session-provider.tsx
+- src/components/app-header.tsx
+- src/app/layout.tsx
+- src/app/page.tsx
+- src/test/session.test.tsx
