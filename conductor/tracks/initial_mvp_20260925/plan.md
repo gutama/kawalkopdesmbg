@@ -13,12 +13,12 @@
   - [x] Implement database seed script with realistic Indonesian village cooperative and SPPG kitchen data
 - [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) b796b69
 
-## Phase 2: Role Management & Layout Navigation
+## Phase 2: Role Management & Layout Navigation [checkpoint: 02067de]
 - [x] Task: Role-Based Persona Switcher & Session Layer (TDD) 02067de
   - [x] Write unit tests for role validation and session helpers
   - [x] Implement typed session context and demo persona switcher (Koperasi Admin, SPPG Staff, Public Observer)
   - [x] Build responsive layout header and navigation customized by active role
-- [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
+- [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) 02067de
 
 ## Phase 3: Cooperative Dispatch Management & QR Delivery Pass
 - [ ] Task: Farmer Commodity Procurement & Fair Price Checker (TDD)
