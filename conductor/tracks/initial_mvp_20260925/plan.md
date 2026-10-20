@@ -14,10 +14,10 @@
 - [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) b796b69
 
 ## Phase 2: Role Management & Layout Navigation
-- [ ] Task: Role-Based Persona Switcher & Session Layer (TDD)
-  - [ ] Write unit tests for role validation and session helpers
-  - [ ] Implement typed session context and demo persona switcher (Koperasi Admin, SPPG Staff, Public Observer)
-  - [ ] Build responsive layout header and navigation customized by active role
+- [x] Task: Role-Based Persona Switcher & Session Layer (TDD) 02067de
+  - [x] Write unit tests for role validation and session helpers
+  - [x] Implement typed session context and demo persona switcher (Koperasi Admin, SPPG Staff, Public Observer)
+  - [x] Build responsive layout header and navigation customized by active role
 - [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
 
 ## Phase 3: Cooperative Dispatch Management & QR Delivery Pass
