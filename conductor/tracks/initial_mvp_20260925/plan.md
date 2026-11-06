@@ -21,7 +21,7 @@
 - [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) 02067de
 
 ## Phase 3: Cooperative Dispatch Management & QR Delivery Pass
-- [ ] Task: Farmer Commodity Procurement & Fair Price Checker (TDD)
+- [~] Task: Farmer Commodity Procurement & Fair Price Checker (TDD)
   - [ ] Write unit tests for commodity procurement calculations and benchmark comparison
   - [ ] Implement UI and Server Actions for recording local farmer produce and comparing with benchmark rates
 - [ ] Task: Delivery Dispatch Order Creation & QR Delivery Pass (TDD)
