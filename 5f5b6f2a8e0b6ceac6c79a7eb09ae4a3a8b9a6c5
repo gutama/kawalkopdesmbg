@@ -1,0 +1,11 @@
+Task: Farmer Commodity Procurement & Fair Price Checker (TDD)
+
+Summary of Changes:
+- Implemented pure domain calculation and fair-price benchmark comparison utilities in src/lib/procurement.ts (formatRupiah, calculateLineTotal, evaluateFairPrice, summarizeProcurementItems, validateProcurementInput).
+- Implemented SQLite database service for cooperative procurement workspace and recording local farmer produce in src/lib/procurement-service.ts.
+- Built FairPriceChecker UI widget (src/components/fair-price-checker.tsx) and ProcurementWorkspace portal (src/components/procurement-workspace.tsx).
+- Added Next.js Server Actions and /koperasi route in src/app/koperasi/actions.ts and src/app/koperasi/page.tsx.
+- Added unit and UI component tests in src/test/procurement.test.ts and src/test/procurement-ui.test.tsx.
+
+Why:
+Ensures village cooperatives (Koperasi Desa) can transparently record local farmer produce supplies and verify that purchase prices meet regional government fair-price benchmarks.
