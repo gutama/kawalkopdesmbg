@@ -1,0 +1,11 @@
+Task: Delivery Dispatch Order Creation & QR Delivery Pass (TDD)
+
+Summary of Changes:
+- Implemented delivery dispatch validation, tamper-resistant QR token generation, QR Code PNG Data URL rendering, and database dispatch creation/listing in src/lib/dispatch.ts.
+- Built printable and shareable Surat Jalan Digital card (src/components/delivery-pass-card.tsx) with QR code, manual security token, itemized table, and print/copy controls.
+- Built interactive DispatchOrderBuilder component (src/components/dispatch-order-builder.tsx) with SPPG kitchen selector, scheduled date input, and dynamic commodity/farmer item picker.
+- Integrated dispatch order creation and QR delivery pass listing into /koperasi page and Server Actions.
+- Added unit and UI component tests in src/test/dispatch.test.ts and src/test/dispatch-ui.test.tsx.
+
+Why:
+Enables village cooperatives to create delivery dispatches to SPPG central kitchens and generate verifiable Surat Jalan Digital QR passes for two-way receiving verification.
