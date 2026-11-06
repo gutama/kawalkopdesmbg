@@ -24,10 +24,10 @@
 - [x] Task: Farmer Commodity Procurement & Fair Price Checker (TDD) 5f5b6f2
   - [x] Write unit tests for commodity procurement calculations and benchmark comparison
   - [x] Implement UI and Server Actions for recording local farmer produce and comparing with benchmark rates
-- [ ] Task: Delivery Dispatch Order Creation & QR Delivery Pass (TDD)
-  - [ ] Write tests for delivery dispatch validation and QR token generation
-  - [ ] Implement delivery order creation form with SPPG kitchen selector and item picker
-  - [ ] Implement digital delivery pass view (*Surat Jalan Digital*) with QR code and print/share support
+- [x] Task: Delivery Dispatch Order Creation & QR Delivery Pass (TDD) 2648c18
+  - [x] Write tests for delivery dispatch validation and QR token generation
+  - [x] Implement delivery order creation form with SPPG kitchen selector and item picker
+  - [x] Implement digital delivery pass view (*Surat Jalan Digital*) with QR code and print/share support
 - [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
 
 ## Phase 4: SPPG Mobile Receiving, QR Scanning & Photo Verification
