@@ -1,0 +1,10 @@
+Task: In-Browser QR Scanner & Receiving Interface (TDD)
+
+Summary of Changes:
+- Implemented delivery status transition validation, item quantity inspection evaluation, checklist validation, and QR token lookup service in src/lib/receiving.ts.
+- Built mobile-first SPPG receiving screen (src/components/sppg-receiving-workspace.tsx) with camera QR scanner (html5-qrcode), manual QR token fallback, incoming delivery queue selector, and interactive item inspection checklist.
+- Added Next.js Server Actions and /sppg page route in src/app/sppg/actions.ts and src/app/sppg/page.tsx.
+- Added unit and UI component tests in src/test/receiving.test.ts and src/test/receiving-ui.test.tsx.
+
+Why:
+Enables SPPG central kitchen operators to scan or enter a cooperative delivery QR token and inspect delivered food commodities against the Surat Jalan Digital.
