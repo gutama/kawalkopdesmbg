@@ -1,0 +1,11 @@
+Task: Proof-of-Delivery Photo Capture & Receipt Sign-off (TDD)
+
+Summary of Changes:
+- Implemented Proof-of-Delivery photo compression/storage handler (compressAndStorePodPhoto) and atomic verification transaction (completeDeliveryVerification) in src/lib/receiving.ts.
+- Extended DeliveryPassView in src/lib/dispatch.ts with signOffNote and photoPath.
+- Updated SppgReceivingWorkspace (src/components/sppg-receiving-workspace.tsx) with client-side photo capture/compression, receiver digital signature confirmation, and immutable Berita Acara Serah Terima Digital Terverifikasi receipt view.
+- Added completeDeliveryVerificationAction to src/app/sppg/actions.ts and wired to /sppg page.
+- Added unit and UI component tests in src/test/receiving.test.ts and src/test/receiving-ui.test.tsx.
+
+Why:
+Completes the two-way QR delivery handshake by recording tamper-evident Proof-of-Delivery photo evidence and receiver sign-off before transitioning deliveries to VERIFIED.
