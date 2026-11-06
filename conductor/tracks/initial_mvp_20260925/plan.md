@@ -31,10 +31,10 @@
 - [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) 2648c18
 
 ## Phase 4: SPPG Mobile Receiving, QR Scanning & Photo Verification
-- [ ] Task: In-Browser QR Scanner & Receiving Interface (TDD)
-  - [ ] Write unit tests for delivery verification state transitions and payload validation
-  - [ ] Build mobile-first receiving screen with camera QR code scanner and manual code fallback
-  - [ ] Implement item inspection checklist and quantity verification
+- [x] Task: In-Browser QR Scanner & Receiving Interface (TDD) 02527f3
+  - [x] Write unit tests for delivery verification state transitions and payload validation
+  - [x] Build mobile-first receiving screen with camera QR code scanner and manual code fallback
+  - [x] Implement item inspection checklist and quantity verification
 - [ ] Task: Proof-of-Delivery Photo Capture & Receipt Sign-off (TDD)
   - [ ] Write tests for Proof-of-Delivery photo upload handler and verification actions
   - [ ] Implement client-side photo capture/compression and receiver digital signature
