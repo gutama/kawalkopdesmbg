@@ -35,10 +35,10 @@
   - [x] Write unit tests for delivery verification state transitions and payload validation
   - [x] Build mobile-first receiving screen with camera QR code scanner and manual code fallback
   - [x] Implement item inspection checklist and quantity verification
-- [ ] Task: Proof-of-Delivery Photo Capture & Receipt Sign-off (TDD)
-  - [ ] Write tests for Proof-of-Delivery photo upload handler and verification actions
-  - [ ] Implement client-side photo capture/compression and receiver digital signature
-  - [ ] Complete delivery status transition to `VERIFIED` and generate immutable delivery confirmation receipt
+- [x] Task: Proof-of-Delivery Photo Capture & Receipt Sign-off (TDD) 829687f
+  - [x] Write tests for Proof-of-Delivery photo upload handler and verification actions
+  - [x] Implement client-side photo capture/compression and receiver digital signature
+  - [x] Complete delivery status transition to `VERIFIED` and generate immutable delivery confirmation receipt
 - [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
 
 ## Phase 5: Public Transparency Dashboard & E2E Validation
