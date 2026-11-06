@@ -20,7 +20,7 @@
   - [x] Build responsive layout header and navigation customized by active role
 - [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) 02067de
 
-## Phase 3: Cooperative Dispatch Management & QR Delivery Pass
+## Phase 3: Cooperative Dispatch Management & QR Delivery Pass [checkpoint: 2648c18]
 - [x] Task: Farmer Commodity Procurement & Fair Price Checker (TDD) 5f5b6f2
   - [x] Write unit tests for commodity procurement calculations and benchmark comparison
   - [x] Implement UI and Server Actions for recording local farmer produce and comparing with benchmark rates
@@ -28,7 +28,7 @@
   - [x] Write tests for delivery dispatch validation and QR token generation
   - [x] Implement delivery order creation form with SPPG kitchen selector and item picker
   - [x] Implement digital delivery pass view (*Surat Jalan Digital*) with QR code and print/share support
-- [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
+- [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) 2648c18
 
 ## Phase 4: SPPG Mobile Receiving, QR Scanning & Photo Verification
 - [ ] Task: In-Browser QR Scanner & Receiving Interface (TDD)
