@@ -3,6 +3,11 @@
 import { revalidatePath } from 'next/cache';
 import { getDatabase } from '@/db/client';
 import {
+  createDeliveryDispatch,
+  type CreateDeliveryDispatchRequest,
+  type CreateDeliveryDispatchResult,
+} from '@/lib/dispatch';
+import {
   ensureInitializedDatabase,
   getCooperativeProcurementWorkspace,
   recordFarmerProcurement,
@@ -29,6 +34,21 @@ export async function recordFarmerProcurementAction(
   const result = recordFarmerProcurement(db, request);
   if (result.success) {
     revalidatePath('/koperasi');
+    revalidatePath('/');
+  }
+  return result;
+}
+
+/** Server Action to create a cooperative delivery dispatch order and generate its QR pass. */
+export async function createDeliveryDispatchAction(
+  request: CreateDeliveryDispatchRequest,
+): Promise<CreateDeliveryDispatchResult> {
+  const db = getDatabase();
+  ensureInitializedDatabase(db);
+  const result = await createDeliveryDispatch(db, request);
+  if (result.success) {
+    revalidatePath('/koperasi');
+    revalidatePath('/sppg');
     revalidatePath('/');
   }
   return result;
