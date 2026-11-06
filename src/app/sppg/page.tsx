@@ -3,13 +3,17 @@ import { getDatabase } from '@/db/client';
 import { ensureInitializedDatabase } from '@/lib/procurement-service';
 import { listKitchenDeliveries } from '@/lib/receiving';
 import { SppgReceivingWorkspace } from '@/components/sppg-receiving-workspace';
-import { lookupDeliveryByQrTokenAction } from './actions';
+import {
+  completeDeliveryVerificationAction,
+  lookupDeliveryByQrTokenAction,
+} from './actions';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * SPPG Central Kitchen Receiving page (`/sppg`) for scanning delivery QR passes
- * and inspecting incoming local food commodities.
+ * SPPG Central Kitchen Receiving page (`/sppg`) for scanning delivery QR passes,
+ * inspecting incoming local food commodities, uploading Proof-of-Delivery photos,
+ * and issuing immutable digital verification receipts.
  */
 export default async function SppgReceivingPage() {
   const db = getDatabase();
@@ -21,6 +25,7 @@ export default async function SppgReceivingPage() {
       <SppgReceivingWorkspace
         initialDeliveries={deliveries}
         onLookupToken={lookupDeliveryByQrTokenAction}
+        onVerifyDelivery={completeDeliveryVerificationAction}
       />
     </main>
   );

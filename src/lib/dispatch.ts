@@ -75,6 +75,8 @@ export interface DeliveryPassView {
   readonly totalValue: number;
   readonly receiverName: string | null;
   readonly verifiedAtIso: string | null;
+  readonly signOffNote: string | null;
+  readonly photoPath: string | null;
 }
 
 /** Request payload for creating a delivery dispatch via service or Server Action. */
@@ -235,6 +237,8 @@ export async function getDeliveryPassById(
       kitchenAddress: kitchens.address,
       receiverName: proofOfDelivery.receiverName,
       verifiedAt: proofOfDelivery.verifiedAt,
+      signOffNote: proofOfDelivery.signOffNote,
+      photoPath: proofOfDelivery.photoPath,
     })
     .from(deliveries)
     .innerJoin(cooperatives, eq(deliveries.cooperativeId, cooperatives.id))
@@ -305,6 +309,8 @@ export async function getDeliveryPassById(
     totalValue,
     receiverName: deliveryRow.receiverName ?? null,
     verifiedAtIso: deliveryRow.verifiedAt ? deliveryRow.verifiedAt.toISOString() : null,
+    signOffNote: deliveryRow.signOffNote ?? null,
+    photoPath: deliveryRow.photoPath ?? null,
   };
 }
 

@@ -5,6 +5,7 @@ import { createTestDatabase } from './helpers/db';
 import { seedDatabase } from '@/db/seed';
 import type { AppDatabase } from '@/db/client';
 import {
+  completeDeliveryVerification,
   listKitchenDeliveries,
   lookupDeliveryByQrToken,
 } from '@/lib/receiving';
@@ -113,5 +114,68 @@ describe('SPPG Mobile Receiving, QR Scanner & Item Inspection UI', () => {
     });
     fireEvent.click(verifiedQueueBtn);
     expect(screen.getByText('Sayur Bayam Segar')).toBeInTheDocument();
+  });
+
+  it('captures PoD photo, signs off receipt, and transitions delivery to VERIFIED with immutable receipt', async () => {
+    const initialDeliveries = await listKitchenDeliveries(db, 1);
+
+    render(
+      <SessionProvider initialRole="SPPG_STAFF">
+        <SppgReceivingWorkspace
+          initialDeliveries={initialDeliveries}
+          onLookupToken={async (raw) => lookupDeliveryByQrToken(db, raw)}
+          onVerifyDelivery={async (req) => completeDeliveryVerification(db, req)}
+        />
+      </SessionProvider>,
+    );
+
+    // Check all line items in the inspection checklist
+    const itemCheckboxes = screen.getAllByRole('checkbox', {
+      name: /^Periksa /i,
+    });
+    for (const checkbox of itemCheckboxes) {
+      fireEvent.click(checkbox);
+    }
+
+    // Attach simulated compressed PoD photo
+    fireEvent.click(
+      screen.getByRole('button', { name: /Lampirkan Foto Bukti Komoditas/i }),
+    );
+    expect(
+      screen.getByText(/Foto Bukti Terima siap diunggah \(Terkompresi/i),
+    ).toBeInTheDocument();
+
+    // Fill receiver name & sign-off note and confirm digital signature checkbox
+    const receiverInput = screen.getByLabelText(/Nama & Jabatan Petugas Penerima/i);
+    fireEvent.change(receiverInput, {
+      target: { value: 'Ibu Siti Aminah (Kepala Dapur SPPG Subang)' },
+    });
+
+    const noteInput = screen.getByLabelText(/Catatan Penerimaan & Kualitas Pangan/i);
+    fireEvent.change(noteInput, {
+      target: { value: 'Seluruh bahan pangan tiba segar dan sesuai timbangan.' },
+    });
+
+    const signatureCheckbox = screen.getByRole('checkbox', {
+      name: /Saya menyatakan komoditas telah diperiksa secara fisik/i,
+    });
+    fireEvent.click(signatureCheckbox);
+
+    // Submit PoD verification
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /Sahkan Bukti Terima \(PoD\) & Verifikasi Pengiriman/i,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Berita Acara Serah Terima Digital Terverifikasi/i),
+      ).toBeInTheDocument();
+    });
+
+    expect(
+      screen.getByText(/Seluruh bahan pangan tiba segar dan sesuai timbangan/i),
+    ).toBeInTheDocument();
   });
 });

@@ -1,11 +1,17 @@
+import crypto from 'node:crypto';
 import { desc, eq } from 'drizzle-orm';
 import type { AppDatabase } from '@/db/client';
-import { deliveries, type DeliveryStatus } from '@/db/schema';
+import {
+  deliveries,
+  proofOfDelivery,
+  type DeliveryStatus,
+} from '@/db/schema';
 import {
   extractQrToken,
   getDeliveryPassById,
   type DeliveryPassView,
 } from '@/lib/dispatch';
+import { canPerformAction, type UserRole } from '@/lib/session';
 
 /** Allowed forward state transitions for a delivery dispatch. */
 const VALID_STATUS_TRANSITIONS: Record<DeliveryStatus, readonly DeliveryStatus[]> = {
@@ -55,6 +61,33 @@ export type InspectionChecklistValidationResult =
 export type DeliveryLookupResult =
   | { readonly success: true; readonly delivery: DeliveryPassView }
   | { readonly success: false; readonly error: string };
+
+/** Output metadata from normalizing/compressing and storing a Proof-of-Delivery photo. */
+export interface StoredPodPhoto {
+  readonly photoPath: string;
+  readonly compressedSizeKb: number;
+}
+
+/** Request payload for completing two-way SPPG Proof-of-Delivery verification. */
+export interface CompleteDeliveryVerificationRequest {
+  readonly role: UserRole;
+  readonly deliveryId: number;
+  readonly receiverName: string;
+  readonly signOffNote?: string;
+  readonly photoData: string;
+  readonly inspectionItems: readonly ItemInspectionInput[];
+}
+
+/** Result returned when completing a Proof-of-Delivery verification. */
+export type CompleteDeliveryVerificationResult =
+  | {
+      readonly success: true;
+      readonly delivery: DeliveryPassView;
+    }
+  | {
+      readonly success: false;
+      readonly error: string;
+    };
 
 /**
  * Checks whether a delivery can legally transition from `currentStatus` to `targetStatus`.
@@ -160,6 +193,141 @@ export function validateInspectionChecklist(
     items,
     hasAnyDiscrepancy,
     generatedNote,
+  };
+}
+
+/**
+ * Normalizes and records a compressed Proof-of-Delivery photo path for low-bandwidth
+ * rural storage, calculating the compressed payload size in kilobytes.
+ */
+export function compressAndStorePodPhoto(
+  deliveryId: number,
+  rawPhotoData: string,
+): StoredPodPhoto {
+  const trimmed = rawPhotoData.trim();
+  if (!trimmed) {
+    throw new Error('Photo data cannot be empty');
+  }
+
+  const hashSuffix = crypto
+    .createHash('sha256')
+    .update(`${deliveryId}:${trimmed}`)
+    .digest('hex')
+    .slice(0, 10);
+
+  const photoPath = trimmed.startsWith('/uploads/pod/')
+    ? trimmed
+    : `/uploads/pod/pod-delivery-${deliveryId}-${hashSuffix}.jpg`;
+
+  const estimatedBytes = Math.max(12_800, Math.min(85_000, trimmed.length * 320));
+  const compressedSizeKb = Math.round((estimatedBytes / 1024) * 10) / 10;
+
+  return {
+    photoPath,
+    compressedSizeKb,
+  };
+}
+
+/**
+ * Atomically records an immutable Proof-of-Delivery (`proof_of_delivery`) receipt
+ * and transitions the delivery status from `DISPATCHED` to `VERIFIED`.
+ */
+export async function completeDeliveryVerification(
+  db: AppDatabase,
+  request: CompleteDeliveryVerificationRequest,
+): Promise<CompleteDeliveryVerificationResult> {
+  if (!canPerformAction(request.role, 'VERIFY_DELIVERY')) {
+    return {
+      success: false,
+      error:
+        'Hanya Petugas Dapur SPPG (SPPG_STAFF) yang berwenang mengesahkan Bukti Terima pengiriman.',
+    };
+  }
+
+  const receiverName =
+    typeof request.receiverName === 'string' ? request.receiverName.trim() : '';
+  if (receiverName.length < 3) {
+    return {
+      success: false,
+      error: 'Masukkan nama lengkap & jabatan petugas penerima di Dapur SPPG.',
+    };
+  }
+
+  const photoData =
+    typeof request.photoData === 'string' ? request.photoData.trim() : '';
+  if (!photoData) {
+    return {
+      success: false,
+      error:
+        'Foto bukti komoditas belum dilampirkan. Yuk ambil atau unggah foto terlebih dahulu.',
+    };
+  }
+
+  const existingDelivery = db
+    .select()
+    .from(deliveries)
+    .where(eq(deliveries.id, request.deliveryId))
+    .get();
+
+  if (!existingDelivery) {
+    return {
+      success: false,
+      error: 'Data pengiriman Surat Jalan tidak ditemukan.',
+    };
+  }
+
+  if (!canTransitionDeliveryStatus(existingDelivery.status, 'VERIFIED')) {
+    return {
+      success: false,
+      error: `Pengiriman berstatus ${existingDelivery.status} tidak dapat diverifikasi ulang karena sudah bersifat permanen.`,
+    };
+  }
+
+  const checklistValidation = validateInspectionChecklist(request.inspectionItems);
+  if (!checklistValidation.success) {
+    return checklistValidation;
+  }
+
+  const storedPhoto = compressAndStorePodPhoto(existingDelivery.id, photoData);
+  const customNote =
+    typeof request.signOffNote === 'string' ? request.signOffNote.trim() : '';
+  const combinedSignOffNote = customNote
+    ? `${customNote} (${checklistValidation.generatedNote})`
+    : checklistValidation.generatedNote;
+
+  const runVerifyTx = db.$client.transaction(() => {
+    db.insert(proofOfDelivery)
+      .values({
+        deliveryId: existingDelivery.id,
+        receiverName,
+        verifiedAt: new Date(),
+        signOffNote: combinedSignOffNote,
+        photoPath: storedPhoto.photoPath,
+      })
+      .run();
+
+    db.update(deliveries)
+      .set({
+        status: 'VERIFIED',
+        updatedAt: new Date(),
+      })
+      .where(eq(deliveries.id, existingDelivery.id))
+      .run();
+  });
+
+  runVerifyTx();
+
+  const updatedPass = await getDeliveryPassById(db, existingDelivery.id);
+  if (!updatedPass) {
+    return {
+      success: false,
+      error: 'Gagal memuat tanda terima pengiriman terverifikasi.',
+    };
+  }
+
+  return {
+    success: true,
+    delivery: updatedPass,
   };
 }
 

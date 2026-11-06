@@ -1,10 +1,14 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { getDatabase } from '@/db/client';
 import { ensureInitializedDatabase } from '@/lib/procurement-service';
 import {
+  completeDeliveryVerification,
   listKitchenDeliveries,
   lookupDeliveryByQrToken,
+  type CompleteDeliveryVerificationRequest,
+  type CompleteDeliveryVerificationResult,
   type DeliveryLookupResult,
 } from '@/lib/receiving';
 import type { DeliveryPassView } from '@/lib/dispatch';
@@ -25,4 +29,19 @@ export async function listKitchenDeliveriesAction(
   const db = getDatabase();
   ensureInitializedDatabase(db);
   return listKitchenDeliveries(db, kitchenId);
+}
+
+/** Server Action to complete two-way Proof-of-Delivery verification and transition to VERIFIED. */
+export async function completeDeliveryVerificationAction(
+  request: CompleteDeliveryVerificationRequest,
+): Promise<CompleteDeliveryVerificationResult> {
+  const db = getDatabase();
+  ensureInitializedDatabase(db);
+  const result = await completeDeliveryVerification(db, request);
+  if (result.success) {
+    revalidatePath('/sppg');
+    revalidatePath('/koperasi');
+    revalidatePath('/');
+  }
+  return result;
 }

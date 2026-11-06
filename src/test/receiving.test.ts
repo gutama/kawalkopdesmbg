@@ -4,6 +4,8 @@ import { seedDatabase } from '@/db/seed';
 import type { AppDatabase } from '@/db/client';
 import {
   canTransitionDeliveryStatus,
+  completeDeliveryVerification,
+  compressAndStorePodPhoto,
   evaluateItemInspection,
   listKitchenDeliveries,
   lookupDeliveryByQrToken,
@@ -139,6 +141,97 @@ describe('SPPG Delivery Receiving, State Transitions & Inspection Validation', (
       const deliveries = await listKitchenDeliveries(db, 1);
       expect(deliveries.length).toBeGreaterThanOrEqual(2);
       expect(deliveries.some((d) => d.status === 'DISPATCHED')).toBe(true);
+    });
+  });
+
+  describe('compressAndStorePodPhoto & completeDeliveryVerification', () => {
+    it('normalizes and stores PoD photo evidence with low-bandwidth metadata', () => {
+      const stored = compressAndStorePodPhoto(
+        3,
+        'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/',
+      );
+      expect(stored.photoPath).toMatch(/^\/uploads\/pod\/pod-delivery-3-/);
+      expect(stored.compressedSizeKb).toBeGreaterThan(0);
+    });
+
+    it('transitions a DISPATCHED delivery to VERIFIED and writes an immutable PoD receipt', async () => {
+      const lookup = await lookupDeliveryByQrToken(
+        db,
+        'mbg_sbg_20261016_dispatch_9c8b7a6f5e4d3c2b1a0f9e',
+      );
+      expect(lookup.success).toBe(true);
+      if (!lookup.success) return;
+
+      const delivery = lookup.delivery;
+      const result = await completeDeliveryVerification(db, {
+        role: 'SPPG_STAFF',
+        deliveryId: delivery.id,
+        receiverName: 'Ibu Siti Aminah (Kepala Dapur SPPG Subang)',
+        signOffNote: 'Beras dan ayam segar diterima sesuai standar gizi MBG.',
+        photoData: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/',
+        inspectionItems: delivery.items.map((item) => ({
+          itemId: item.id,
+          commodityName: item.commodityName,
+          unit: item.unit,
+          dispatchedQuantity: item.quantity,
+          receivedQuantity: item.quantity,
+          checked: true,
+        })),
+      });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.delivery.status).toBe('VERIFIED');
+        expect(result.delivery.receiverName).toContain('Ibu Siti Aminah');
+        expect(result.delivery.photoPath).toMatch(/^\/uploads\/pod\/pod-delivery-/);
+        expect(result.delivery.signOffNote).toContain('Beras dan ayam segar');
+      }
+
+      // Attempting to verify an already-VERIFIED delivery must be rejected
+      const duplicateAttempt = await completeDeliveryVerification(db, {
+        role: 'SPPG_STAFF',
+        deliveryId: delivery.id,
+        receiverName: 'Ibu Siti Aminah',
+        photoData: '/uploads/pod/test.jpg',
+        inspectionItems: delivery.items.map((item) => ({
+          itemId: item.id,
+          commodityName: item.commodityName,
+          unit: item.unit,
+          dispatchedQuantity: item.quantity,
+          receivedQuantity: item.quantity,
+          checked: true,
+        })),
+      });
+      expect(duplicateAttempt.success).toBe(false);
+    });
+
+    it('rejects verification when role is unauthorized or photo/receiverName is missing', async () => {
+      const unauthorized = await completeDeliveryVerification(db, {
+        role: 'PUBLIC_OBSERVER',
+        deliveryId: 3,
+        receiverName: 'Ibu Siti Aminah',
+        photoData: '/uploads/pod/test.jpg',
+        inspectionItems: [],
+      });
+      expect(unauthorized.success).toBe(false);
+
+      const missingPhoto = await completeDeliveryVerification(db, {
+        role: 'SPPG_STAFF',
+        deliveryId: 3,
+        receiverName: 'Ibu Siti Aminah',
+        photoData: '   ',
+        inspectionItems: [
+          {
+            itemId: 7,
+            commodityName: 'Beras Medium',
+            unit: 'kg',
+            dispatchedQuantity: 200,
+            receivedQuantity: 200,
+            checked: true,
+          },
+        ],
+      });
+      expect(missingPhoto.success).toBe(false);
     });
   });
 });
