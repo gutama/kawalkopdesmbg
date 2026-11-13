@@ -10,6 +10,11 @@ import {
   lookupDeliveryByQrToken,
 } from '@/lib/receiving';
 import { getPublicTransparencySnapshot } from '@/lib/transparency';
+import {
+  getPublicWhistleblowerSnapshot,
+  submitCommunityReport,
+  triageCommunityReport,
+} from '@/lib/whistleblower';
 import { createTestDatabase } from './helpers/db';
 
 describe('End-to-End Kopdes-MBG Lifecycle: Procurement -> QR Dispatch -> SPPG PoD -> Public Dashboard', () => {
@@ -118,6 +123,93 @@ describe('End-to-End Kopdes-MBG Lifecycle: Procurement -> QR Dispatch -> SPPG Po
     expect(verifiedPublicRecord?.status).toBe('VERIFIED');
     expect(verifiedPublicRecord?.proofOfDelivery?.receiverName).toContain(
       'Ibu Siti Aminah',
+    );
+
+    db.$client.close();
+  });
+
+  it('completes the Community Whistleblower & Feedback Loop: Submit Masked Report -> Role-Gated Triage -> Resolution KPIs', async () => {
+    const db = createTestDatabase();
+    seedDatabase(db);
+
+    const initialSnapshot = getPublicWhistleblowerSnapshot(db);
+    const initialTotal = initialSnapshot.kpis.totalReportsCount;
+    const initialResolved = initialSnapshot.kpis.resolvedReportsCount;
+
+    // 1. Citizen submits a report linked to verified delivery #1 with optional phone contact and compressed evidence photo
+    const submitResult = submitCommunityReport(db, {
+      role: 'PUBLIC_OBSERVER',
+      category: 'KUALITAS_PANGAN',
+      severity: 'HIGH',
+      reporterRoleLabel: 'Warga / Orang Tua Siswa',
+      reporterName: 'Pak Dedi Kurniawan',
+      reporterContact: '081299887766',
+      isAnonymous: false,
+      deliveryId: 1,
+      title: 'Ditemukan kemasan tahu pecah saat pengiriman pagi ke SPPG',
+      description:
+        'Sebanyak 2 peti tahu putih bergeser selama perjalanan sehingga kemasan airnya bocor.',
+      photoData: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBx==',
+    });
+
+    expect(submitResult.success).toBe(true);
+    if (!submitResult.success) return;
+
+    const createdReportId = submitResult.report.id;
+    expect(submitResult.report.status).toBe('BARU');
+    expect(submitResult.report.reporterDisplayName).toBe('Pak D*** K***');
+    expect(submitResult.report.photoPath).toContain('/uploads/reports/');
+    expect(submitResult.report.cooperativeId).toBe(1);
+    expect(submitResult.report.kitchenId).toBe(1);
+
+    // 2. Public whistleblower snapshot reflects new report and never leaks raw contact phone number
+    const afterSubmitSnapshot = getPublicWhistleblowerSnapshot(db);
+    expect(afterSubmitSnapshot.kpis.totalReportsCount).toBe(initialTotal + 1);
+    expect(JSON.stringify(afterSubmitSnapshot)).not.toContain('081299887766');
+
+    // 3. PUBLIC_OBSERVER must be denied triage permissions
+    const deniedTriage = triageCommunityReport(db, {
+      role: 'PUBLIC_OBSERVER',
+      reportId: createdReportId,
+      newStatus: 'DITINDAKLANJUTI',
+      responseNote: 'Mencoba ubah status tanpa hak akses resmi.',
+      respondedBy: 'Pemantau Publik',
+    });
+    expect(deniedTriage.success).toBe(false);
+
+    // 4. KOPERASI_ADMIN transitions the report to DITINDAKLANJUTI
+    const inProgressTriage = triageCommunityReport(db, {
+      role: 'KOPERASI_ADMIN',
+      reportId: createdReportId,
+      newStatus: 'DITINDAKLANJUTI',
+      responseNote:
+        'Tim logistik Koperasi Cibogo segera mengirim peti pengganti berisi tahu segar pagi ini.',
+      respondedBy: 'Pak Tatang Ruhiyat (Koperasi Desa Merah Putih Cibogo)',
+    });
+    expect(inProgressTriage.success).toBe(true);
+    if (!inProgressTriage.success) return;
+    expect(inProgressTriage.report.status).toBe('DITINDAKLANJUTI');
+
+    // 5. SPPG_STAFF verifies replacement and resolves report to SELESAI
+    const resolvedTriage = triageCommunityReport(db, {
+      role: 'SPPG_STAFF',
+      reportId: createdReportId,
+      newStatus: 'SELESAI',
+      responseNote:
+        'Tahu pengganti dalam kondisi utuh dan segar sudah diterima dapur SPPG Subang Kota.',
+      respondedBy: 'Ibu Siti Aminah (SPPG Dapur Gizi Subang Kota)',
+    });
+    expect(resolvedTriage.success).toBe(true);
+    if (!resolvedTriage.success) return;
+    expect(resolvedTriage.report.status).toBe('SELESAI');
+    expect(resolvedTriage.report.resolvedAtIso).toBeTruthy();
+
+    // 6. Public whistleblower KPIs reflect updated resolution count and rate
+    const finalSnapshot = getPublicWhistleblowerSnapshot(db);
+    expect(finalSnapshot.kpis.totalReportsCount).toBe(initialTotal + 1);
+    expect(finalSnapshot.kpis.resolvedReportsCount).toBe(initialResolved + 1);
+    expect(finalSnapshot.kpis.resolutionRatePercent).toBe(
+      Math.round(((initialResolved + 1) / (initialTotal + 1)) * 100),
     );
 
     db.$client.close();
