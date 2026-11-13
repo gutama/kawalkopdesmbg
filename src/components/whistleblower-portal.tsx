@@ -520,10 +520,10 @@ export function WhistleblowerPortal({
               <MessageSquareWarning className="h-4 w-4 text-stone-500" aria-hidden="true" />
             </div>
             <p className="mt-2 text-2xl font-bold text-stone-900 tabular-nums">
-              {baseSnapshot.kpis.totalReportsCount}
+              {filteredView.kpis.totalReportsCount}
             </p>
             <p className="mt-1 text-xs text-stone-600">
-              {baseSnapshot.kpis.highSeverityCount} laporan prioritas tinggi
+              {filteredView.kpis.highSeverityCount} laporan prioritas tinggi
             </p>
           </div>
 
@@ -536,7 +536,7 @@ export function WhistleblowerPortal({
               <AlertTriangle className="h-4 w-4 text-amber-700" aria-hidden="true" />
             </div>
             <p className="mt-2 text-2xl font-bold text-amber-950 tabular-nums">
-              {baseSnapshot.kpis.openReportsCount}
+              {filteredView.kpis.openReportsCount}
             </p>
             <p className="mt-1 text-xs text-amber-800">Menunggu respon pengurus</p>
           </div>
@@ -550,7 +550,7 @@ export function WhistleblowerPortal({
               <Clock className="h-4 w-4 text-sky-700" aria-hidden="true" />
             </div>
             <p className="mt-2 text-2xl font-bold text-sky-950 tabular-nums">
-              {baseSnapshot.kpis.inProgressReportsCount}
+              {filteredView.kpis.inProgressReportsCount}
             </p>
             <p className="mt-1 text-xs text-sky-800">Sedang dalam pemeriksaan</p>
           </div>
@@ -564,10 +564,10 @@ export function WhistleblowerPortal({
               <CheckCircle2 className="h-4 w-4 text-emerald-700" aria-hidden="true" />
             </div>
             <p className="mt-2 text-2xl font-bold text-emerald-950 tabular-nums">
-              {baseSnapshot.kpis.resolvedReportsCount}
+              {filteredView.kpis.resolvedReportsCount}
             </p>
             <p className="mt-1 text-xs text-emerald-800 tabular-nums">
-              Tingkat penyelesaian {baseSnapshot.kpis.resolutionRatePercent}%
+              Tingkat penyelesaian {filteredView.kpis.resolutionRatePercent}%
             </p>
           </div>
         </div>
