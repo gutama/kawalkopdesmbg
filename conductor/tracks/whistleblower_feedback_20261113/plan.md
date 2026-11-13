@@ -9,10 +9,10 @@
 - [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) 62408fa
 
 ## Phase 2: Whistleblower Service, Privacy Masking & Role Permissions
-- [ ] Task: Privacy-Safe Report Service & Triage Workflow (TDD)
-  - [ ] Write unit tests for reporter name masking, phone stripping, photo evidence storage, submission validation, and status triage (`BARU` -> `DITINDAKLANJUTI` -> `SELESAI`)
-  - [ ] Update `src/lib/session.ts` with `SUBMIT_REPORT` and `TRIAGE_REPORT` role permissions and `/laporan` navigation links
-  - [ ] Implement `src/lib/whistleblower.ts` (`submitCommunityReport`, `triageCommunityReport`, `getPublicWhistleblowerSnapshot`, `filterWhistleblowerReports`, `maskReporterIdentity`, `compressAndStoreReportPhoto`)
+- [x] Task: Privacy-Safe Report Service & Triage Workflow (TDD) 00efc84
+  - [x] Write unit tests for reporter name masking, phone stripping, photo evidence storage, submission validation, and status triage (`BARU` -> `DITINDAKLANJUTI` -> `SELESAI`)
+  - [x] Update `src/lib/session.ts` with `SUBMIT_REPORT` and `TRIAGE_REPORT` role permissions and `/laporan` navigation links
+  - [x] Implement `src/lib/whistleblower.ts` (`submitCommunityReport`, `triageCommunityReport`, `getPublicWhistleblowerSnapshot`, `filterWhistleblowerReports`, `maskReporterIdentity`, `compressAndStoreReportPhoto`)
 - [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
 
 ## Phase 3: Community Whistleblower Portal (`/laporan`) & Public Dashboard Integration
