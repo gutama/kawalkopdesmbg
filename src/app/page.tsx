@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Scale,
   QrCode,
+  MessageSquareWarning,
 } from 'lucide-react';
 import { useSession } from '@/components/session-provider';
 import { PublicTransparencyDashboard } from '@/components/public-transparency-dashboard';
@@ -104,6 +105,16 @@ export default function HomePage() {
                 >
                   <span>Buka Verifikasi SPPG</span>
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </Link>
+              ) : null}
+
+              {canPerform('SUBMIT_REPORT') ? (
+                <Link
+                  href="/laporan"
+                  className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-600 bg-emerald-900/90 px-4 py-2.5 text-sm font-bold text-amber-300 shadow-sm transition-colors hover:bg-emerald-800 whitespace-nowrap"
+                >
+                  <MessageSquareWarning className="h-4 w-4" aria-hidden="true" />
+                  <span>Buka Pengaduan Warga</span>
                 </Link>
               ) : null}
             </div>

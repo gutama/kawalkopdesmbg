@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
+import Link from 'next/link';
 import {
   Banknote,
   Building2,
@@ -13,6 +14,7 @@ import {
   Filter,
   Lock,
   MapPin,
+  MessageSquareWarning,
   PackageCheck,
   RefreshCw,
   RotateCcw,
@@ -722,14 +724,25 @@ export function PublicTransparencyDashboard({
                         </div>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => setInspectedDelivery(delivery)}
-                        className="inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-emerald-700 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-emerald-800 whitespace-nowrap"
-                      >
-                        <Eye className="h-3.5 w-3.5" aria-hidden="true" />
-                        <span>Lihat Bukti Terima (PoD)</span>
-                      </button>
+                      <div className="flex flex-wrap items-center gap-2 shrink-0">
+                        <Link
+                          href={`/laporan?deliveryId=${delivery.id}`}
+                          data-testid={`report-delivery-link-${delivery.id}`}
+                          className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2 text-xs font-bold text-amber-950 transition-colors hover:bg-amber-100 whitespace-nowrap"
+                        >
+                          <MessageSquareWarning className="h-3.5 w-3.5 text-amber-700" aria-hidden="true" />
+                          <span>Laporkan Kendala</span>
+                        </Link>
+
+                        <button
+                          type="button"
+                          onClick={() => setInspectedDelivery(delivery)}
+                          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-emerald-700 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-emerald-800 whitespace-nowrap"
+                        >
+                          <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                          <span>Lihat Bukti Terima (PoD)</span>
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-xs text-stone-600">
@@ -741,9 +754,19 @@ export function PublicTransparencyDashboard({
                           Menunggu pemindaian QR &amp; foto bukti terima oleh petugas SPPG.
                         </span>
                       </div>
-                      <span className="font-mono text-[11px] text-stone-500 tabular-nums">
-                        Total Muatan: {delivery.totalQuantity.toLocaleString('id-ID')} unit
-                      </span>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span className="font-mono text-[11px] text-stone-500 tabular-nums">
+                          Total Muatan: {delivery.totalQuantity.toLocaleString('id-ID')} unit
+                        </span>
+                        <Link
+                          href={`/laporan?deliveryId=${delivery.id}`}
+                          data-testid={`report-delivery-link-${delivery.id}`}
+                          className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-950 transition-colors hover:bg-amber-100 whitespace-nowrap"
+                        >
+                          <MessageSquareWarning className="h-3.5 w-3.5 text-amber-700" aria-hidden="true" />
+                          <span>Laporkan Kendala</span>
+                        </Link>
+                      </div>
                     </div>
                   )}
                 </article>
