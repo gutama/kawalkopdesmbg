@@ -15,7 +15,7 @@
   - [x] Implement `src/lib/whistleblower.ts` (`submitCommunityReport`, `triageCommunityReport`, `getPublicWhistleblowerSnapshot`, `filterWhistleblowerReports`, `maskReporterIdentity`, `compressAndStoreReportPhoto`)
 - [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) 00efc84
 
-## Phase 3: Community Whistleblower Portal (`/laporan`) & Public Dashboard Integration
+## Phase 3: Community Whistleblower Portal (`/laporan`) & Public Dashboard Integration [checkpoint: 229cfb2]
 - [x] Task: Community Reporting Portal UI, Triage Panel & Delivery Card Integration (TDD) ae8f19c
   - [x] Write component & integration tests for `/laporan` submission form, filterable report feed, role-aware triage modal, and quick-report links from public delivery cards
   - [x] Implement Server Actions in `src/app/laporan/actions.ts` and build `src/components/whistleblower-portal.tsx` + `src/app/laporan/page.tsx`
@@ -23,4 +23,4 @@
 - [x] Task: End-to-End Whistleblower Lifecycle Verification & Quality Gate Audit 229cfb2
   - [x] Write end-to-end integration test covering report submission -> public masked feed -> Koperasi/SPPG triage -> resolution verification
   - [x] Run linter, type-check, and full test suite to verify >80% coverage
-- [~] Task: Phase Verification & Checkpoint (Refer to workflow.md)
+- [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) 229cfb2
