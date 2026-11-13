@@ -1,4 +1,3 @@
-import crypto from 'node:crypto';
 import { desc, eq } from 'drizzle-orm';
 import type { AppDatabase } from '@/db/client';
 import {
@@ -209,11 +208,20 @@ export function compressAndStorePodPhoto(
     throw new Error('Photo data cannot be empty');
   }
 
-  const hashSuffix = crypto
-    .createHash('sha256')
-    .update(`${deliveryId}:${trimmed}`)
-    .digest('hex')
-    .slice(0, 10);
+  const input = `${deliveryId}:${trimmed}`;
+  let h1 = 0xdeadbeef ^ input.length;
+  let h2 = 0x41c6ce57 ^ input.length;
+  for (let i = 0; i < input.length; i++) {
+    const ch = input.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  const hashSuffix = (
+    (h1 >>> 0).toString(16).padStart(8, '0') +
+    (h2 >>> 0).toString(16).padStart(8, '0')
+  ).slice(0, 10);
 
   const photoPath = trimmed.startsWith('/uploads/pod/')
     ? trimmed

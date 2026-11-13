@@ -42,10 +42,10 @@
 - [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) 829687f
 
 ## Phase 5: Public Transparency Dashboard & E2E Validation
-- [ ] Task: Public Transparency Dashboard & Metrics (TDD)
-  - [ ] Write tests for aggregated transparency queries (total local produce absorbed, funds channeled to village cooperatives)
-  - [ ] Build public landing page showing live KPI cards, commodity distribution charts, and verified delivery timeline
-- [ ] Task: End-to-End Workflow Verification & Quality Gate Audit
-  - [ ] Write end-to-end integration test covering complete dispatch-to-verification-to-public lifecycle
-  - [ ] Verify mobile viewport responsiveness, run linter, and ensure >80% test coverage across all modules
-- [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
+- [x] Task: Public Transparency Dashboard & Metrics (TDD)
+  - [x] Write tests for aggregated transparency queries (total local produce absorbed, funds channeled to village cooperatives)
+  - [x] Build public landing page showing live KPI cards, commodity distribution charts, and verified delivery timeline
+- [x] Task: End-to-End Workflow Verification & Quality Gate Audit
+  - [x] Write end-to-end integration test covering complete dispatch-to-verification-to-public lifecycle
+  - [x] Verify mobile viewport responsiveness, run linter, and ensure >80% test coverage across all modules
+- [x] Task: Phase Verification & Checkpoint (Refer to workflow.md)

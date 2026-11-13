@@ -1,4 +1,3 @@
-import crypto from 'node:crypto';
 import { desc, eq } from 'drizzle-orm';
 import QRCode from 'qrcode';
 import type { AppDatabase } from '@/db/client';
@@ -100,7 +99,9 @@ export function generateDispatchQrToken(
   scheduledDate: string,
 ): string {
   const cleanDate = scheduledDate.replace(/[^0-9]/g, '').slice(0, 8) || '00000000';
-  const randomHex = crypto.randomBytes(12).toString('hex');
+  const bytes = new Uint8Array(12);
+  globalThis.crypto.getRandomValues(bytes);
+  const randomHex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
   return `mbg_coop${cooperativeId}_${cleanDate}_${randomHex}`;
 }
 

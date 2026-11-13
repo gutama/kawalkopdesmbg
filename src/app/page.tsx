@@ -1,36 +1,67 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
-  ArrowRight,
+  Sprout,
   Building2,
   ChefHat,
-  CheckCircle2,
   Eye,
-  QrCode,
+  ArrowRight,
+  CheckCircle2,
   Scale,
-  Sprout,
+  QrCode,
 } from 'lucide-react';
 import { useSession } from '@/components/session-provider';
+import { PublicTransparencyDashboard } from '@/components/public-transparency-dashboard';
+import {
+  DEFAULT_PUBLIC_TRANSPARENCY_SNAPSHOT,
+  type PublicTransparencySnapshot,
+} from '@/lib/transparency';
+import { loadPublicTransparencySnapshotAction } from './actions';
 
 /**
- * Role-aware home page displaying the active persona workspace banner,
- * quick navigation cards tailored to the selected role, and core MBG transparency pillars.
+ * KawalKopdesMBG Public Transparency Landing Page (`/`) featuring:
+ * - Hero & Active Persona Banner with quick links to `/koperasi` and `/sppg`
+ * - Phase 5 Live Public Transparency Dashboard (KPIs, Regional Filter, Commodity
+ *   Absorption & Fair-Price Compliance, and Verified Delivery PoD Timeline)
+ * - Interactive Stakeholder Persona Switcher Cards
+ * - Core Transparency Pillars
  */
-export default function Home() {
+export default function HomePage() {
   const { role, persona, personas, setRole, canPerform } = useSession();
+  const [snapshot, setSnapshot] = useState<PublicTransparencySnapshot>(
+    DEFAULT_PUBLIC_TRANSPARENCY_SNAPSHOT,
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    async function syncLiveDatabaseSnapshot() {
+      try {
+        const liveData = await loadPublicTransparencySnapshotAction();
+        if (!cancelled && liveData) {
+          setSnapshot(liveData);
+        }
+      } catch {
+        // Fallback to deterministic seed snapshot in non-server test environments
+      }
+    }
+    void syncLiveDatabaseSnapshot();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
-    <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
+    <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-10 px-4 py-8 sm:px-6 lg:px-8">
       {/* Hero & Active Persona Banner */}
       <section className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 p-6 text-white shadow-md sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl space-y-3">
-            <span className="inline-flex items-center gap-2 rounded-full bg-emerald-700/70 px-3 py-1 text-xs font-semibold text-amber-300 ring-1 ring-inset ring-amber-400/30">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold text-amber-300">
               <Sprout className="h-4 w-4" aria-hidden="true" />
-              Ekosistem Gotong Royong Pangan Desa MBG
-            </span>
+              <span>Ekosistem Gotong Royong Pangan Desa MBG</span>
+            </div>
             <h1 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
               Kawal Pasokan Koperasi Desa &amp; Dapur Gizi Secara Transparan
             </h1>
@@ -43,7 +74,7 @@ export default function Home() {
 
           {/* Active Session Summary Card */}
           <div className="w-full rounded-xl border border-emerald-700/80 bg-emerald-950/80 p-5 lg:max-w-sm">
-            <p className="text-xs font-semibold uppercase tracking-wider text-amber-400">
+            <p className="text-xs font-semibold text-amber-400">
               Sesi Peran Aktif Saat Ini
             </p>
             <h2 className="mt-1 text-lg font-bold text-white">{persona.name}</h2>
@@ -59,7 +90,7 @@ export default function Home() {
               {canPerform('CREATE_DISPATCH') ? (
                 <Link
                   href="/koperasi"
-                  className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-bold text-stone-950 shadow-sm transition-colors hover:bg-amber-400"
+                  className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-bold text-stone-950 shadow-sm transition-colors hover:bg-amber-400 whitespace-nowrap"
                 >
                   <span>Buka Portal Koperasi</span>
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -69,7 +100,7 @@ export default function Home() {
               {canPerform('VERIFY_DELIVERY') ? (
                 <Link
                   href="/sppg"
-                  className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-bold text-stone-950 shadow-sm transition-colors hover:bg-amber-400"
+                  className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-bold text-stone-950 shadow-sm transition-colors hover:bg-amber-400 whitespace-nowrap"
                 >
                   <span>Buka Verifikasi SPPG</span>
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -79,6 +110,13 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Phase 5: Public Transparency Dashboard */}
+      <PublicTransparencyDashboard
+        key={`${snapshot.kpis.totalFundsChanneledIdr}-${snapshot.deliveries.length}-${snapshot.kpis.verifiedDeliveriesCount}`}
+        initialSnapshot={snapshot}
+        onRefreshSnapshot={loadPublicTransparencySnapshotAction}
+      />
 
       {/* Interactive Persona Cards */}
       <section aria-labelledby="persona-section-heading" className="space-y-4">

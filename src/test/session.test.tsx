@@ -27,6 +27,12 @@ vi.mock('next/navigation', () => ({
 vi.mock('next/font/google', () => ({
   Geist: () => ({ variable: '--font-geist-sans' }),
   Geist_Mono: () => ({ variable: '--font-geist-mono' }),
+  Plus_Jakarta_Sans: () => ({ variable: '--font-geist-sans' }),
+  JetBrains_Mono: () => ({ variable: '--font-geist-mono' }),
+}));
+
+vi.mock('@/app/actions', () => ({
+  loadPublicTransparencySnapshotAction: vi.fn().mockResolvedValue(null),
 }));
 
 describe('Session & Role Validation Helpers', () => {

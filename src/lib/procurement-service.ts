@@ -1,4 +1,3 @@
-import crypto from 'node:crypto';
 import { desc, eq } from 'drizzle-orm';
 import type { AppDatabase } from '@/db/client';
 import { runMigrations } from '@/db/migrate';
@@ -238,7 +237,9 @@ export function recordFarmerProcurement(
     }
 
     const todayIso = new Date().toISOString().slice(0, 10);
-    const randomSuffix = crypto.randomBytes(8).toString('hex');
+    const bytes = new Uint8Array(8);
+    globalThis.crypto.getRandomValues(bytes);
+    const randomSuffix = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
     const qrToken = `mbg_draft_${cooperative.id}_${todayIso.replace(/-/g, '')}_${randomSuffix}`;
 
     targetDelivery = db

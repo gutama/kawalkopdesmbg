@@ -1,23 +1,37 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { SessionProvider } from '@/components/session-provider';
 import { AppHeader } from '@/components/app-header';
 
-const geistSans = Geist({
+const jakartaSans = Plus_Jakarta_Sans({
   variable: '--font-geist-sans',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
 });
 
-const geistMono = Geist_Mono({
+const jetbrainsMono = JetBrains_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
 });
 
 export const metadata: Metadata = {
   title: 'KawalKopdesMBG — Transparansi Pangan Desa untuk Makan Bergizi Gratis',
   description:
     'Platform pemantauan gotong royong dan transparansi rantai pasok Koperasi Desa ke dapur SPPG dalam program Makan Bergizi Gratis (MBG).',
+  openGraph: {
+    title: 'KawalKopdesMBG — Transparansi Pangan Desa untuk Makan Bergizi Gratis',
+    description:
+      'Platform pemantauan gotong royong dan transparansi rantai pasok Koperasi Desa ke dapur SPPG dalam program Makan Bergizi Gratis (MBG).',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'KawalKopdesMBG — Transparansi Pangan Desa untuk Makan Bergizi Gratis',
+    description:
+      'Platform pemantauan gotong royong dan transparansi rantai pasok Koperasi Desa ke dapur SPPG dalam program Makan Bergizi Gratis (MBG).',
+  },
 };
 
 /** Root application layout wrapping all pages in the demo role session and responsive header. */
@@ -29,9 +43,12 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${jakartaSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-stone-50 text-stone-900">
+      <body
+        suppressHydrationWarning
+        className="min-h-full flex flex-col bg-stone-50 text-stone-900 font-sans"
+      >
         <SessionProvider>
           <AppHeader />
           <div className="flex-1 flex flex-col">{children}</div>
