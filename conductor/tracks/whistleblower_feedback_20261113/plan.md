@@ -24,3 +24,6 @@
   - [x] Write end-to-end integration test covering report submission -> public masked feed -> Koperasi/SPPG triage -> resolution verification
   - [x] Run linter, type-check, and full test suite to verify >80% coverage
 - [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) 229cfb2
+
+## Phase: Review Fixes
+- [x] Task: Apply review suggestions 5b7b728
