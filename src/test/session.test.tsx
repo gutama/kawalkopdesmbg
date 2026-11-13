@@ -84,25 +84,31 @@ describe('Session & Role Validation Helpers', () => {
     expect(canPerformAction('KOPERASI_ADMIN', 'CREATE_DISPATCH')).toBe(true);
     expect(canPerformAction('KOPERASI_ADMIN', 'VERIFY_DELIVERY')).toBe(false);
     expect(canPerformAction('KOPERASI_ADMIN', 'VIEW_PUBLIC_DASHBOARD')).toBe(true);
+    expect(canPerformAction('KOPERASI_ADMIN', 'SUBMIT_REPORT')).toBe(true);
+    expect(canPerformAction('KOPERASI_ADMIN', 'TRIAGE_REPORT')).toBe(true);
 
     expect(canPerformAction('SPPG_STAFF', 'VERIFY_DELIVERY')).toBe(true);
     expect(canPerformAction('SPPG_STAFF', 'CREATE_DISPATCH')).toBe(false);
     expect(canPerformAction('SPPG_STAFF', 'VIEW_PUBLIC_DASHBOARD')).toBe(true);
+    expect(canPerformAction('SPPG_STAFF', 'SUBMIT_REPORT')).toBe(true);
+    expect(canPerformAction('SPPG_STAFF', 'TRIAGE_REPORT')).toBe(true);
 
     expect(canPerformAction('PUBLIC_OBSERVER', 'VIEW_PUBLIC_DASHBOARD')).toBe(true);
     expect(canPerformAction('PUBLIC_OBSERVER', 'CREATE_DISPATCH')).toBe(false);
     expect(canPerformAction('PUBLIC_OBSERVER', 'VERIFY_DELIVERY')).toBe(false);
+    expect(canPerformAction('PUBLIC_OBSERVER', 'SUBMIT_REPORT')).toBe(true);
+    expect(canPerformAction('PUBLIC_OBSERVER', 'TRIAGE_REPORT')).toBe(false);
   });
 
   it('returns customized navigation items for each role', () => {
     const publicNav = getNavigationItemsForRole('PUBLIC_OBSERVER');
-    expect(publicNav.map((item) => item.href)).toEqual(['/']);
+    expect(publicNav.map((item) => item.href)).toEqual(['/', '/laporan']);
 
     const koperasiNav = getNavigationItemsForRole('KOPERASI_ADMIN');
-    expect(koperasiNav.map((item) => item.href)).toEqual(['/', '/koperasi']);
+    expect(koperasiNav.map((item) => item.href)).toEqual(['/', '/koperasi', '/laporan']);
 
     const sppgNav = getNavigationItemsForRole('SPPG_STAFF');
-    expect(sppgNav.map((item) => item.href)).toEqual(['/', '/sppg']);
+    expect(sppgNav.map((item) => item.href)).toEqual(['/', '/sppg', '/laporan']);
   });
 
   it('loads and saves role to storage safely including when storage is unavailable or throws', () => {

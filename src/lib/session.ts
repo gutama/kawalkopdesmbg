@@ -21,6 +21,8 @@ export const ROLE_ACTIONS = [
   'CREATE_DISPATCH',
   'VERIFY_DELIVERY',
   'VIEW_PUBLIC_DASHBOARD',
+  'SUBMIT_REPORT',
+  'TRIAGE_REPORT',
 ] as const;
 export type RoleAction = (typeof ROLE_ACTIONS)[number];
 
@@ -82,9 +84,20 @@ export const DEMO_PERSONAS: readonly DemoPersona[] = [
 ] as const;
 
 const ROLE_PERMISSIONS: Record<UserRole, readonly RoleAction[]> = {
-  KOPERASI_ADMIN: ['RECORD_PROCUREMENT', 'CREATE_DISPATCH', 'VIEW_PUBLIC_DASHBOARD'],
-  SPPG_STAFF: ['VERIFY_DELIVERY', 'VIEW_PUBLIC_DASHBOARD'],
-  PUBLIC_OBSERVER: ['VIEW_PUBLIC_DASHBOARD'],
+  KOPERASI_ADMIN: [
+    'RECORD_PROCUREMENT',
+    'CREATE_DISPATCH',
+    'VIEW_PUBLIC_DASHBOARD',
+    'SUBMIT_REPORT',
+    'TRIAGE_REPORT',
+  ],
+  SPPG_STAFF: [
+    'VERIFY_DELIVERY',
+    'VIEW_PUBLIC_DASHBOARD',
+    'SUBMIT_REPORT',
+    'TRIAGE_REPORT',
+  ],
+  PUBLIC_OBSERVER: ['VIEW_PUBLIC_DASHBOARD', 'SUBMIT_REPORT'],
 };
 
 const ROLE_NAVIGATION: Record<UserRole, readonly NavItem[]> = {
@@ -93,6 +106,12 @@ const ROLE_NAVIGATION: Record<UserRole, readonly NavItem[]> = {
       href: '/',
       label: 'Dashboard Transparansi',
       description: 'Statistik publik & riwayat pengiriman MBG',
+    },
+    {
+      href: '/laporan',
+      label: 'Pengaduan Warga',
+      description: 'Lapor & kawal tindak lanjut kendala MBG',
+      badge: 'Suara Warga',
     },
   ],
   KOPERASI_ADMIN: [
@@ -107,6 +126,12 @@ const ROLE_NAVIGATION: Record<UserRole, readonly NavItem[]> = {
       description: 'Pengadaan petani & cetak Surat Jalan QR',
       badge: 'Koperasi',
     },
+    {
+      href: '/laporan',
+      label: 'Pengaduan Warga',
+      description: 'Lapor & kawal tindak lanjut kendala MBG',
+      badge: 'Suara Warga',
+    },
   ],
   SPPG_STAFF: [
     {
@@ -119,6 +144,12 @@ const ROLE_NAVIGATION: Record<UserRole, readonly NavItem[]> = {
       label: 'Verifikasi Terima SPPG',
       description: 'Pindai QR & konfirmasi bukti foto',
       badge: 'SPPG',
+    },
+    {
+      href: '/laporan',
+      label: 'Pengaduan Warga',
+      description: 'Lapor & kawal tindak lanjut kendala MBG',
+      badge: 'Suara Warga',
     },
   ],
 };
