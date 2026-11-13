@@ -5,7 +5,11 @@ import type { AppDatabase } from "@/db/client";
 import {
   DELIVERY_STATUSES,
   COMMODITY_UNITS,
+  REPORT_CATEGORIES,
+  REPORT_SEVERITIES,
+  REPORT_STATUSES,
   commodities,
+  communityReports,
   cooperatives,
   deliveries,
   deliveryItems,
@@ -90,10 +94,21 @@ describe("schema constants", () => {
   it("exposes the supported commodity units", () => {
     expect(COMMODITY_UNITS).toEqual(["kg", "liter", "ikat", "butir"]);
   });
+
+  it("exposes community report categories, severities, and lifecycle statuses", () => {
+    expect(REPORT_CATEGORIES).toEqual([
+      "KUALITAS_PANGAN",
+      "HARGA_PETANI",
+      "KENDALA_DISTRIBUSI",
+      "SELISIH_KUANTITAS",
+    ]);
+    expect(REPORT_SEVERITIES).toEqual(["HIGH", "MEDIUM", "LOW"]);
+    expect(REPORT_STATUSES).toEqual(["BARU", "DITINDAKLANJUTI", "SELESAI"]);
+  });
 });
 
 describe("migrations", () => {
-  it("create all seven domain tables", () => {
+  it("create all domain tables including community_reports", () => {
     const rows = db.$client
       .prepare("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name")
       .all() as Array<{ name: string }>;
@@ -107,6 +122,7 @@ describe("migrations", () => {
         "deliveries",
         "delivery_items",
         "proof_of_delivery",
+        "community_reports",
       ]),
     );
   });
@@ -381,5 +397,84 @@ describe("relations", () => {
       with: { farmers: true },
     });
     expect(loaded?.farmers.map((farmer) => farmer.name)).toEqual(["Pak Asep"]);
+  });
+});
+
+describe("community reports", () => {
+  it("defaults status to BARU, severity to MEDIUM, and isAnonymous to true", () => {
+    const parents = insertParents(db);
+    const delivery = insertDelivery(db, parents);
+    const [report] = db
+      .insert(communityReports)
+      .values({
+        category: "KUALITAS_PANGAN",
+        reporterRoleLabel: "Warga / Orang Tua Siswa",
+        deliveryId: delivery.id,
+        cooperativeId: parents.cooperative.id,
+        kitchenId: parents.kitchen.id,
+        title: "Sayuran kurang segar saat diterima",
+        description: "Beberapa ikat bayam tampak layu di bagian bawah keranjang.",
+      })
+      .returning()
+      .all();
+
+    expect(report.status).toBe("BARU");
+    expect(report.severity).toBe("MEDIUM");
+    expect(report.isAnonymous).toBe(true);
+    expect(report.createdAt).toBeInstanceOf(Date);
+  });
+
+  it("enforces CHECK constraints on category, severity, and status", () => {
+    expect(() =>
+      db.$client
+        .prepare(
+          "INSERT INTO community_reports (category, reporter_role_label, title, description) VALUES (?, ?, ?, ?)",
+        )
+        .run("INVALID_CAT", "Warga", "Judul", "Deskripsi"),
+    ).toThrow(/CHECK constraint failed/);
+
+    expect(() =>
+      db.$client
+        .prepare(
+          "INSERT INTO community_reports (category, severity, reporter_role_label, title, description) VALUES (?, ?, ?, ?, ?)",
+        )
+        .run("KUALITAS_PANGAN", "CRITICAL", "Warga", "Judul", "Deskripsi"),
+    ).toThrow(/CHECK constraint failed/);
+
+    expect(() =>
+      db.$client
+        .prepare(
+          "INSERT INTO community_reports (category, status, reporter_role_label, title, description) VALUES (?, ?, ?, ?, ?)",
+        )
+        .run("KUALITAS_PANGAN", "CLOSED", "Warga", "Judul", "Deskripsi"),
+    ).toThrow(/CHECK constraint failed/);
+  });
+
+  it("loads community report relations to delivery, cooperative, and kitchen", async () => {
+    const parents = insertParents(db);
+    const delivery = insertDelivery(db, parents);
+    const [report] = db
+      .insert(communityReports)
+      .values({
+        category: "SELISIH_KUANTITAS",
+        severity: "HIGH",
+        reporterRoleLabel: "Petugas Lapangan",
+        deliveryId: delivery.id,
+        cooperativeId: parents.cooperative.id,
+        kitchenId: parents.kitchen.id,
+        title: "Selisih timbangan beras 5 kg",
+        description: "Timbangan saat penerimaan menunjukkan 245 kg dari 250 kg di surat jalan.",
+      })
+      .returning()
+      .all();
+
+    const loaded = await db.query.communityReports.findFirst({
+      where: eq(communityReports.id, report.id),
+      with: { delivery: true, cooperative: true, kitchen: true },
+    });
+
+    expect(loaded?.delivery?.qrToken).toBe(delivery.qrToken);
+    expect(loaded?.cooperative?.name).toBe("Koperasi Desa Merah Putih Cibogo");
+    expect(loaded?.kitchen?.name).toBe("SPPG Subang Kota");
   });
 });

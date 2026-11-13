@@ -4,6 +4,7 @@ import { closeDatabase, getDatabase, type AppDatabase } from "./client";
 import { runMigrations } from "./migrate";
 import {
   commodities,
+  communityReports,
   cooperatives,
   deliveries,
   deliveryItems,
@@ -21,6 +22,7 @@ export interface SeedSummary {
   deliveries: number;
   deliveryItems: number;
   proofOfDelivery: number;
+  communityReports: number;
 }
 
 /** Counts rows across all domain tables for reporting and idempotency checks. */
@@ -33,19 +35,121 @@ function getSeedSummary(db: AppDatabase): SeedSummary {
     deliveries: db.select().from(deliveries).all().length,
     deliveryItems: db.select().from(deliveryItems).all().length,
     proofOfDelivery: db.select().from(proofOfDelivery).all().length,
+    communityReports: db.select().from(communityReports).all().length,
   };
 }
 
 /**
+ * Inserts realistic Subang & Banyumas community whistleblower and feedback reports
+ * when `community_reports` is empty.
+ */
+function seedInitialCommunityReports(
+  db: AppDatabase,
+  refs: {
+    subangCoopId: number;
+    banyumasCoopId: number;
+    subangKitchenId: number;
+    banyumasKitchenId: number;
+    subangVerifiedDeliveryId: number;
+    subangDispatchedDeliveryId: number;
+  },
+): void {
+  db.insert(communityReports)
+    .values([
+      {
+        category: "KUALITAS_PANGAN",
+        severity: "MEDIUM",
+        status: "SELESAI",
+        reporterRoleLabel: "Warga / Orang Tua Siswa",
+        reporterName: "Ibu Rina Marlina",
+        reporterContact: "0812-9001-3344",
+        isAnonymous: false,
+        deliveryId: refs.subangVerifiedDeliveryId,
+        cooperativeId: refs.subangCoopId,
+        kitchenId: refs.subangKitchenId,
+        title: "Sebagian ikatan bayam perlu penyortiran ulang sebelum dimasak",
+        description:
+          "Saat pembongkaran pagi di dapur Subang Kota, sekitar 10 ikat sayur bayam tampak agak layu di bagian bawah keranjang. Perlu sirkulasi keranjang lebih baik.",
+        photoPath: "/uploads/reports/demo-bayam-subang-01.jpg",
+        responseNote:
+          "Terima kasih masukannya. Tim koperasi sudah mengganti 15 ikat bayam segar tambahan dan beralih ke keranjang berlubang untuk pengiriman berikutnya.",
+        respondedBy: "Pak Tatang Ruhiyat (Koperasi Desa Merah Putih Cibogo)",
+        resolvedAt: new Date("2026-10-14T11:30:00+07:00"),
+      },
+      {
+        category: "KENDALA_DISTRIBUSI",
+        severity: "HIGH",
+        status: "DITINDAKLANJUTI",
+        reporterRoleLabel: "Petugas Lapangan",
+        reporterName: null,
+        reporterContact: "0857-4411-8899",
+        isAnonymous: true,
+        deliveryId: refs.subangDispatchedDeliveryId,
+        cooperativeId: refs.subangCoopId,
+        kitchenId: refs.subangKitchenId,
+        title: "Keterlambatan armada pengangkut akibat perbaikan jembatan desa",
+        description:
+          "Akses jalan utama Desa Cibogo menuju jalur pantura dialihkan sementara sehingga waktu tiba di SPPG Subang Kota mundur sekitar 45 menit.",
+        photoPath: null,
+        responseNote:
+          "Armada dialihkan lewat jalur alternatif Padaasih dan berkoordinasi dengan koordinator dapur SPPG agar jadwal masak tetap aman.",
+        respondedBy: "Ibu Siti Aminah (SPPG Dapur Gizi Subang Kota)",
+        resolvedAt: null,
+      },
+      {
+        category: "HARGA_PETANI",
+        severity: "LOW",
+        status: "BARU",
+        reporterRoleLabel: "Petani Lokal",
+        reporterName: "Pak Slamet Riyadi",
+        reporterContact: "0815-4201-9981",
+        isAnonymous: false,
+        deliveryId: null,
+        cooperativeId: refs.banyumasCoopId,
+        kitchenId: refs.banyumasKitchenId,
+        title: "Usulan penyesuaian harga acuan daging ayam ras minggu depan",
+        description:
+          "Harga pakan ternak di tingkat peternak Banyumas naik tipis pekan ini. Mohon peninjauan harga serapan koperasi agar tetap sejalan dengan acuan pemda.",
+        photoPath: null,
+        responseNote: null,
+        respondedBy: null,
+        resolvedAt: null,
+      },
+    ])
+    .run();
+}
+
+/**
  * Populates the database with realistic Indonesian village cooperative, farmer,
- * SPPG central kitchen, commodity, and delivery data for Subang and Banyumas.
+ * SPPG central kitchen, commodity, delivery, and community report data for Subang and Banyumas.
  *
  * The operation is idempotent: if cooperatives are already present, existing
- * records are preserved and current table counts are returned.
+ * records are preserved (while backfilling community_reports if still empty)
+ * and current table counts are returned.
  */
 export function seedDatabase(db: AppDatabase): SeedSummary {
   const existing = getSeedSummary(db);
   if (existing.cooperatives > 0) {
+    if (existing.communityReports === 0) {
+      const existingCoops = db.select().from(cooperatives).all();
+      const existingKitchens = db.select().from(kitchens).all();
+      const existingDeliveries = db.select().from(deliveries).all();
+      if (existingCoops.length >= 2 && existingKitchens.length >= 2 && existingDeliveries.length >= 3) {
+        const subangVerified =
+          existingDeliveries.find((d) => d.status === "VERIFIED") ?? existingDeliveries[0];
+        const subangDispatched =
+          existingDeliveries.find((d) => d.status === "DISPATCHED") ?? existingDeliveries[1];
+        seedInitialCommunityReports(db, {
+          subangCoopId: existingCoops[0].id,
+          banyumasCoopId: existingCoops[1].id,
+          subangKitchenId: existingKitchens[0].id,
+          banyumasKitchenId: existingKitchens[1].id,
+          subangVerifiedDeliveryId: subangVerified.id,
+          subangDispatchedDeliveryId: subangDispatched.id,
+        });
+        return getSeedSummary(db);
+      }
+    }
     return existing;
   }
 
@@ -277,6 +381,15 @@ export function seedDatabase(db: AppDatabase): SeedSummary {
         },
       ])
       .run();
+
+    seedInitialCommunityReports(db, {
+      subangCoopId: subangCoop.id,
+      banyumasCoopId: banyumasCoop.id,
+      subangKitchenId: subangKitchen.id,
+      banyumasKitchenId: banyumasKitchen.id,
+      subangVerifiedDeliveryId: subangVerified.id,
+      subangDispatchedDeliveryId: subangDispatched.id,
+    });
   });
 
   runSeedTransaction();

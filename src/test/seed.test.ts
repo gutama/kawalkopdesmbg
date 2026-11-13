@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { AppDatabase } from "@/db/client";
 import {
   commodities,
+  communityReports,
   cooperatives,
   deliveries,
   deliveryItems,
@@ -109,6 +110,16 @@ describe("seedDatabase", () => {
     }
   });
 
+  it("creates community whistleblower reports covering BARU, DITINDAKLANJUTI, and SELESAI states", () => {
+    seedDatabase(db);
+    const reports = db.select().from(communityReports).all();
+    expect(reports.length).toBeGreaterThanOrEqual(3);
+    const statuses = new Set(reports.map((r) => r.status));
+    expect([...statuses]).toEqual(
+      expect.arrayContaining(["BARU", "DITINDAKLANJUTI", "SELESAI"]),
+    );
+  });
+
   it("returns a summary of inserted row counts", () => {
     const summary = seedDatabase(db);
     expect(summary).toEqual({
@@ -119,6 +130,7 @@ describe("seedDatabase", () => {
       deliveries: db.select().from(deliveries).all().length,
       deliveryItems: db.select().from(deliveryItems).all().length,
       proofOfDelivery: db.select().from(proofOfDelivery).all().length,
+      communityReports: db.select().from(communityReports).all().length,
     });
   });
 

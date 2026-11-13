@@ -13,6 +13,23 @@ export type DeliveryStatus = (typeof DELIVERY_STATUSES)[number];
 export const COMMODITY_UNITS = ["kg", "liter", "ikat", "butir"] as const;
 export type CommodityUnit = (typeof COMMODITY_UNITS)[number];
 
+/** Categories for community whistleblower and feedback reports. */
+export const REPORT_CATEGORIES = [
+  "KUALITAS_PANGAN",
+  "HARGA_PETANI",
+  "KENDALA_DISTRIBUSI",
+  "SELISIH_KUANTITAS",
+] as const;
+export type ReportCategory = (typeof REPORT_CATEGORIES)[number];
+
+/** Severity levels for community reports. */
+export const REPORT_SEVERITIES = ["HIGH", "MEDIUM", "LOW"] as const;
+export type ReportSeverity = (typeof REPORT_SEVERITIES)[number];
+
+/** Resolution lifecycle statuses for community reports. */
+export const REPORT_STATUSES = ["BARU", "DITINDAKLANJUTI", "SELESAI"] as const;
+export type ReportStatus = (typeof REPORT_STATUSES)[number];
+
 /** Renders a TypeScript string tuple as a SQL `IN (...)` list for CHECK constraints. */
 function sqlInList(values: readonly string[]) {
   return sql.raw(values.map((value) => `'${value}'`).join(", "));
@@ -166,13 +183,63 @@ export const proofOfDelivery = sqliteTable("proof_of_delivery", {
   photoPath: text("photo_path").notNull(),
 });
 
+/**
+ * Community whistleblower and feedback report submitted by residents, parents,
+ * local farmers, or field officers regarding MBG supply chain integrity.
+ */
+export const communityReports = sqliteTable(
+  "community_reports",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    category: text("category", { enum: REPORT_CATEGORIES }).notNull(),
+    severity: text("severity", { enum: REPORT_SEVERITIES }).notNull().default("MEDIUM"),
+    status: text("status", { enum: REPORT_STATUSES }).notNull().default("BARU"),
+    reporterRoleLabel: text("reporter_role_label").notNull(),
+    reporterName: text("reporter_name"),
+    reporterContact: text("reporter_contact"),
+    isAnonymous: integer("is_anonymous", { mode: "boolean" }).notNull().default(true),
+    deliveryId: integer("delivery_id").references(() => deliveries.id, { onDelete: "set null" }),
+    cooperativeId: integer("cooperative_id").references(() => cooperatives.id, {
+      onDelete: "restrict",
+    }),
+    kitchenId: integer("kitchen_id").references(() => kitchens.id, { onDelete: "restrict" }),
+    title: text("title").notNull(),
+    description: text("description").notNull(),
+    photoPath: text("photo_path"),
+    responseNote: text("response_note"),
+    respondedBy: text("responded_by"),
+    resolvedAt: integer("resolved_at", { mode: "timestamp" }),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    check(
+      "community_reports_category_valid",
+      sql`${table.category} IN (${sqlInList(REPORT_CATEGORIES)})`,
+    ),
+    check(
+      "community_reports_severity_valid",
+      sql`${table.severity} IN (${sqlInList(REPORT_SEVERITIES)})`,
+    ),
+    check(
+      "community_reports_status_valid",
+      sql`${table.status} IN (${sqlInList(REPORT_STATUSES)})`,
+    ),
+    index("community_reports_status_idx").on(table.status),
+    index("community_reports_category_idx").on(table.category),
+    index("community_reports_cooperative_id_idx").on(table.cooperativeId),
+    index("community_reports_kitchen_id_idx").on(table.kitchenId),
+  ],
+);
+
 export const cooperativesRelations = relations(cooperatives, ({ many }) => ({
   farmers: many(farmers),
   deliveries: many(deliveries),
+  communityReports: many(communityReports),
 }));
 
 export const kitchensRelations = relations(kitchens, ({ many }) => ({
   deliveries: many(deliveries),
+  communityReports: many(communityReports),
 }));
 
 export const farmersRelations = relations(farmers, ({ one, many }) => ({
@@ -198,6 +265,7 @@ export const deliveriesRelations = relations(deliveries, ({ one, many }) => ({
   }),
   items: many(deliveryItems),
   proofOfDelivery: one(proofOfDelivery),
+  communityReports: many(communityReports),
 }));
 
 export const deliveryItemsRelations = relations(deliveryItems, ({ one }) => ({
@@ -222,6 +290,21 @@ export const proofOfDeliveryRelations = relations(proofOfDelivery, ({ one }) => 
   }),
 }));
 
+export const communityReportsRelations = relations(communityReports, ({ one }) => ({
+  delivery: one(deliveries, {
+    fields: [communityReports.deliveryId],
+    references: [deliveries.id],
+  }),
+  cooperative: one(cooperatives, {
+    fields: [communityReports.cooperativeId],
+    references: [cooperatives.id],
+  }),
+  kitchen: one(kitchens, {
+    fields: [communityReports.kitchenId],
+    references: [kitchens.id],
+  }),
+}));
+
 export type Cooperative = typeof cooperatives.$inferSelect;
 export type NewCooperative = typeof cooperatives.$inferInsert;
 export type Kitchen = typeof kitchens.$inferSelect;
@@ -236,3 +319,5 @@ export type DeliveryItem = typeof deliveryItems.$inferSelect;
 export type NewDeliveryItem = typeof deliveryItems.$inferInsert;
 export type ProofOfDelivery = typeof proofOfDelivery.$inferSelect;
 export type NewProofOfDelivery = typeof proofOfDelivery.$inferInsert;
+export type CommunityReport = typeof communityReports.$inferSelect;
+export type NewCommunityReport = typeof communityReports.$inferInsert;
