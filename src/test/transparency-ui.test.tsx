@@ -95,4 +95,26 @@ describe('PublicTransparencyDashboard UI Component', () => {
       expect(refreshMock).toHaveBeenCalledTimes(1);
     });
   });
+
+  it('formats UTC Proof-of-Delivery timestamps in WIB with accurate UTC+7 calendar day rollover', () => {
+    const customSnapshot = {
+      ...DEFAULT_PUBLIC_TRANSPARENCY_SNAPSHOT,
+      deliveries: DEFAULT_PUBLIC_TRANSPARENCY_SNAPSHOT.deliveries.map((d, idx) =>
+        idx === 1 && d.proofOfDelivery
+          ? {
+              ...d,
+              proofOfDelivery: {
+                ...d.proofOfDelivery,
+                verifiedAtIso: '2026-10-13T23:15:00.000Z',
+              },
+            }
+          : d,
+      ),
+    };
+
+    render(<PublicTransparencyDashboard initialSnapshot={customSnapshot} />);
+
+    expect(screen.getByText(/2026-10-14 06:15 WIB/)).toBeInTheDocument();
+    expect(screen.getByText(/2026-10-14 08:05 WIB/)).toBeInTheDocument();
+  });
 });

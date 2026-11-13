@@ -50,11 +50,12 @@ function formatIndonesianTimestamp(iso: string | null): string {
   if (Number.isNaN(date.getTime())) {
     return iso;
   }
-  const yyyy = date.getUTCFullYear();
-  const mm = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const dd = String(date.getUTCDate()).padStart(2, '0');
-  const hh = String((date.getUTCHours() + 7) % 24).padStart(2, '0');
-  const min = String(date.getUTCMinutes()).padStart(2, '0');
+  const wibDate = new Date(date.getTime() + 7 * 60 * 60 * 1000);
+  const yyyy = wibDate.getUTCFullYear();
+  const mm = String(wibDate.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(wibDate.getUTCDate()).padStart(2, '0');
+  const hh = String(wibDate.getUTCHours()).padStart(2, '0');
+  const min = String(wibDate.getUTCMinutes()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd} ${hh}:${min} WIB`;
 }
 
@@ -509,7 +510,16 @@ export function PublicTransparencyDashboard({
                         {formatRupiah(item.totalValueIdr)}
                       </td>
                       <td className="pl-3 py-3.5 text-right">
-                        <div className="inline-flex items-center justify-end gap-1.5 text-xs font-semibold text-emerald-800">
+                        <div
+                          className={cn(
+                            'inline-flex items-center justify-end gap-1.5 text-xs font-semibold',
+                            item.fairEvaluation.status === 'BELOW_BENCHMARK'
+                              ? 'text-red-700'
+                              : item.fairEvaluation.status === 'ABOVE_BENCHMARK'
+                                ? 'text-amber-800'
+                                : 'text-emerald-800',
+                          )}
+                        >
                           <CheckCircle2 className="h-4 w-4 shrink-0" aria-hidden="true" />
                           <span>{item.fairEvaluation.label}</span>
                         </div>
