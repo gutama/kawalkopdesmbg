@@ -8,12 +8,12 @@
   - [x] Seed realistic Subang & Banyumas community feedback and whistleblower reports in `src/db/seed.ts`
 - [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) 62408fa
 
-## Phase 2: Whistleblower Service, Privacy Masking & Role Permissions
+## Phase 2: Whistleblower Service, Privacy Masking & Role Permissions [checkpoint: 00efc84]
 - [x] Task: Privacy-Safe Report Service & Triage Workflow (TDD) 00efc84
   - [x] Write unit tests for reporter name masking, phone stripping, photo evidence storage, submission validation, and status triage (`BARU` -> `DITINDAKLANJUTI` -> `SELESAI`)
   - [x] Update `src/lib/session.ts` with `SUBMIT_REPORT` and `TRIAGE_REPORT` role permissions and `/laporan` navigation links
   - [x] Implement `src/lib/whistleblower.ts` (`submitCommunityReport`, `triageCommunityReport`, `getPublicWhistleblowerSnapshot`, `filterWhistleblowerReports`, `maskReporterIdentity`, `compressAndStoreReportPhoto`)
-- [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
+- [x] Task: Phase Verification & Checkpoint (Refer to workflow.md) 00efc84
 
 ## Phase 3: Community Whistleblower Portal (`/laporan`) & Public Dashboard Integration
 - [ ] Task: Community Reporting Portal UI, Triage Panel & Delivery Card Integration (TDD)
