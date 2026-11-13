@@ -20,7 +20,7 @@
   - [x] Write component & integration tests for `/laporan` submission form, filterable report feed, role-aware triage modal, and quick-report links from public delivery cards
   - [x] Implement Server Actions in `src/app/laporan/actions.ts` and build `src/components/whistleblower-portal.tsx` + `src/app/laporan/page.tsx`
   - [x] Add inline 'Laporkan Kendala' quick-action link on delivery cards in `src/components/public-transparency-dashboard.tsx` and summary metrics on the home page
-- [ ] Task: End-to-End Whistleblower Lifecycle Verification & Quality Gate Audit
-  - [ ] Write end-to-end integration test covering report submission -> public masked feed -> Koperasi/SPPG triage -> resolution verification
-  - [ ] Run linter, type-check, and full test suite to verify >80% coverage
-- [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
+- [x] Task: End-to-End Whistleblower Lifecycle Verification & Quality Gate Audit 229cfb2
+  - [x] Write end-to-end integration test covering report submission -> public masked feed -> Koperasi/SPPG triage -> resolution verification
+  - [x] Run linter, type-check, and full test suite to verify >80% coverage
+- [~] Task: Phase Verification & Checkpoint (Refer to workflow.md)
