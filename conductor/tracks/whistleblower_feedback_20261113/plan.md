@@ -1,11 +1,11 @@
 # Implementation Plan: Community Whistleblower & Feedback Loop
 
 ## Phase 1: Whistleblower Schema, Migration & Seed Data
-- [ ] Task: Community Reports Schema & Seed Data (TDD)
-  - [ ] Write unit tests for `community_reports` schema constraints, foreign-key relations, and seed data
-  - [ ] Define `community_reports` table, enums (`REPORT_CATEGORIES`, `REPORT_SEVERITIES`, `REPORT_STATUSES`), and relations in `src/db/schema.ts`
-  - [ ] Add SQL migration for `community_reports` in `drizzle/` and update `src/db/migrate.ts`
-  - [ ] Seed realistic Subang & Banyumas community feedback and whistleblower reports in `src/db/seed.ts`
+- [x] Task: Community Reports Schema & Seed Data (TDD) 62408fa
+  - [x] Write unit tests for `community_reports` schema constraints, foreign-key relations, and seed data
+  - [x] Define `community_reports` table, enums (`REPORT_CATEGORIES`, `REPORT_SEVERITIES`, `REPORT_STATUSES`), and relations in `src/db/schema.ts`
+  - [x] Add SQL migration for `community_reports` in `drizzle/` and update `src/db/migrate.ts`
+  - [x] Seed realistic Subang & Banyumas community feedback and whistleblower reports in `src/db/seed.ts`
 - [ ] Task: Phase Verification & Checkpoint (Refer to workflow.md)
 
 ## Phase 2: Whistleblower Service, Privacy Masking & Role Permissions
